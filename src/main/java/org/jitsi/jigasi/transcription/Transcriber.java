@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.jitsi.impl.neomedia.device.*;
 import org.jitsi.jigasi.*;
+import org.jitsi.impl.neomedia.device.AudioMixerMediaDevice;
 import org.jitsi.jigasi.stats.*;
 import org.jitsi.jigasi.transcription.action.*;
 import org.jitsi.utils.logging2.*;
@@ -137,6 +138,12 @@ public class Transcriber
     private TranslationManager translationManager = null;
 
     /**
+     * The audio playback manager which will handle text-to-speech and
+     * playback of translated audio.
+     */
+    private AudioPlaybackManager audioPlaybackManager = null;
+
+    /**
      * Every listener which will be notified when a new result comes in
      * or the transcription has been completed
      */
@@ -218,6 +225,8 @@ public class Transcriber
         if (isTranslationEnabled())
         {
             addTranscriptionListener(this.translationManager);
+            this.audioPlaybackManager = new AudioPlaybackManager(getMediaDevice());
+            addTranslationListener(this.audioPlaybackManager);
         }
         this.roomName = roomName;
         this.roomUrl = roomUrl;
@@ -246,7 +255,12 @@ public class Transcriber
                 .getString(CUSTOM_TRANSLATION_SERVICE_PROP, null);
 
         TranslationService translationService = null;
-        if (customTranslationServiceClass != null)
+
+        if ("api".equals(JigasiBundleActivator.getConfigurationService().getString("org.jitsi.jigasi.transcription.translation.service")))
+        {
+            translationService = new ApiTranslationService();
+        }
+        else if (customTranslationServiceClass != null)
         {
             try
             {

@@ -246,7 +246,11 @@ public class TranscriptionGateway
     {
         String customTranscriptionServiceClass = getCustomTranscriptionServiceClass(ctx);
         AbstractTranscriptionService service = null;
-        if (customTranscriptionServiceClass != null)
+        if ("api".equals(JigasiBundleActivator.getConfigurationService().getString("org.jitsi.jigasi.transcription.service")))
+        {
+            service = new ApiTranscriptionService();
+        }
+        else if (customTranscriptionServiceClass != null)
         {
             try
             {
