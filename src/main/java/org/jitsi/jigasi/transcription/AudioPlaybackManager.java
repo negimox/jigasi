@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Base64;
 
 /**
  * Manages the playback of translated audio into the conference.
@@ -56,6 +57,8 @@ public class AudioPlaybackManager
 
     private final AudioMixerMediaDevice mediaDevice;
     private final String ttsApiUrl;
+    private final String apiUsername;
+    private final String apiPassword;
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     /**
@@ -68,6 +71,10 @@ public class AudioPlaybackManager
         this.mediaDevice = mediaDevice;
         this.ttsApiUrl = JigasiBundleActivator.getConfigurationService()
             .getString(TTS_API_URL_CONFIG_KEY, null);
+        this.apiUsername = JigasiBundleActivator.getConfigurationService()
+            .getString(ApiTranscriptionService.API_USERNAME_CONFIG_KEY, null);
+        this.apiPassword = JigasiBundleActivator.getConfigurationService()
+            .getString(ApiTranscriptionService.API_PASSWORD_CONFIG_KEY, null);
     }
 
     @Override
@@ -87,10 +94,18 @@ public class AudioPlaybackManager
             payload.put("voice", "af_heart");
             payload.put("response_format", "wav");
 
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                 .uri(new URI(ttsApiUrl))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(payload.toJSONString()))
+                .header("Content-Type", "application/json");
+
+            if (apiUsername != null && !apiUsername.isEmpty() && apiPassword != null && !apiPassword.isEmpty())
+            {
+                String auth = apiUsername + ":" + apiPassword;
+                String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+                requestBuilder.header("Authorization", "Basic " + encodedAuth);
+            }
+
+            HttpRequest request = requestBuilder.POST(HttpRequest.BodyPublishers.ofString(payload.toJSONString()))
                 .build();
 
             httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray())

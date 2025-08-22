@@ -264,11 +264,9 @@ public class Transcriber
         {
             try
             {
+                Class<?> clazz = Class.forName(customTranslationServiceClass);
                 translationService =
-                    (TranslationService)
-                        Class.forName(customTranslationServiceClass)
-                            .getConstructor()
-                            .newInstance();
+                    (TranslationService) clazz.getConstructor().newInstance();
             }
             catch(Exception e)
             {

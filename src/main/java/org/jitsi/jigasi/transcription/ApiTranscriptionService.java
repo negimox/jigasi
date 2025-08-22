@@ -65,12 +65,38 @@ public class ApiTranscriptionService
     private String apiUrl;
 
     /**
+     * The config key for the API username.
+     */
+    public final static String API_USERNAME_CONFIG_KEY
+        = "org.jitsi.jigasi.transcription.api.username";
+
+    /**
+     * The config key for the API password.
+     */
+    public final static String API_PASSWORD_CONFIG_KEY
+        = "org.jitsi.jigasi.transcription.api.password";
+
+    /**
+     * The API username.
+     */
+    private String apiUsername;
+
+    /**
+     * The API password.
+     */
+    private String apiPassword;
+
+    /**
      * Creates a new ApiTranscriptionService.
      */
     public ApiTranscriptionService()
     {
         apiUrl = JigasiBundleActivator.getConfigurationService()
             .getString(API_URL_CONFIG_KEY, null);
+        apiUsername = JigasiBundleActivator.getConfigurationService()
+            .getString(API_USERNAME_CONFIG_KEY, null);
+        apiPassword = JigasiBundleActivator.getConfigurationService()
+            .getString(API_PASSWORD_CONFIG_KEY, null);
     }
 
     @Override
@@ -193,10 +219,18 @@ public class ApiTranscriptionService
             try
             {
                 String boundary = "Boundary-" + System.currentTimeMillis();
-                HttpRequest request = HttpRequest.newBuilder()
+                HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(new URI(apiUrl))
-                    .header("Content-Type", "multipart/form-data;boundary=" + boundary)
-                    .POST(ofMimeMultipartData(audioData, boundary))
+                    .header("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+                if (apiUsername != null && !apiUsername.isEmpty() && apiPassword != null && !apiPassword.isEmpty())
+                {
+                    String auth = apiUsername + ":" + apiPassword;
+                    String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+                    requestBuilder.header("Authorization", "Basic " + encodedAuth);
+                }
+
+                HttpRequest request = requestBuilder.POST(ofMimeMultipartData(audioData, boundary))
                     .build();
 
                 httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
