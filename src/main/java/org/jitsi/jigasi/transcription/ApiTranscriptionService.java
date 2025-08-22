@@ -80,6 +80,12 @@ public class ApiTranscriptionService
     }
 
     @Override
+    public boolean supportsLanguageRouting()
+    {
+        return false;
+    }
+
+    @Override
     public StreamingRecognitionSession initStreamingSession(Participant participant)
         throws UnsupportedOperationException
     {
@@ -234,7 +240,9 @@ public class ApiTranscriptionService
             }
         }
 
-        private HttpRequest.BodyPublisher ofMimeMultipartData(byte[] data, String boundary) throws IOException {
+        private HttpRequest.BodyPublisher ofMimeMultipartData(byte[] data, String boundary)
+            throws IOException
+        {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             String header = "--" + boundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"audio_file\"; filename=\"audio.raw\"\r\n" +

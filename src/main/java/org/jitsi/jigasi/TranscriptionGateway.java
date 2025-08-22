@@ -254,8 +254,10 @@ public class TranscriptionGateway
         {
             try
             {
-                service = (AbstractTranscriptionService)Class.forName(
-                    customTranscriptionServiceClass).getDeclaredConstructor().newInstance();
+                service = (AbstractTranscriptionService)
+                    Class.forName(customTranscriptionServiceClass)
+                        .getConstructor()
+                        .newInstance();
             }
             catch(Exception e)
             {

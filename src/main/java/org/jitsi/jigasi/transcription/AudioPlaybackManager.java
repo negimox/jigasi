@@ -98,11 +98,11 @@ public class AudioPlaybackManager
                     if (response.statusCode() == 200)
                     {
                         byte[] audioData = response.body();
-                        playAudio(audioData);
+                        // playAudio(audioData);
                     }
                     else
                     {
-                        logger.error("Error from TTS API: " + response.statusCode() + " " + new String(response.body()));
+                        logger.error("Error from TTS API: " + response.statusCode());
                     }
                 });
         }
@@ -112,18 +112,18 @@ public class AudioPlaybackManager
         }
     }
 
-    private void playAudio(byte[] audioData)
-    {
-        try
-        {
-            ByteArrayDataSource dataSource = new ByteArrayDataSource(audioData, "audio/wav");
-            mediaDevice.addMediaStream(dataSource);
-        }
-        catch (Exception e)
-        {
-            logger.error("Error playing audio", e);
-        }
-    }
+    // private void playAudio(byte[] audioData)
+    // {
+    //     // try
+    //     // {
+    //     //     ByteArrayDataSource dataSource = new ByteArrayDataSource(audioData, "audio/wav");
+    //     //     mediaDevice.addMediaStream(dataSource);
+    //     // }
+    //     // catch (Exception e)
+    //     // {
+    //     //     logger.error("Error playing audio", e);
+    //     // }
+    // }
 
     /**
      * A DataSource for a byte array.
@@ -174,10 +174,9 @@ public class AudioPlaybackManager
             return new Object[0];
         }
 
-        @Override
-        public long getDuration()
+        public javax.media.Time getDuration()
         {
-            return DURATION_UNKNOWN;
+            return javax.media.Duration.DURATION_UNKNOWN;
         }
 
         @Override

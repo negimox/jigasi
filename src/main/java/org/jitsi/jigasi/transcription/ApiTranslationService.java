@@ -17,9 +17,6 @@
  */
 package org.jitsi.jigasi.transcription;
 
-import java.util.concurrent.Future;
-import java.util.function.Consumer;
-
 /**
  * A pass-through TranslationService that doesn't perform any translation.
  * It assumes that the transcription service already provides the translated text.
@@ -30,20 +27,20 @@ public class ApiTranslationService
     implements TranslationService
 {
     @Override
-    public Future<?> send(TranscriptionResult transcriptionResult, String sourceLanguage, String targetLanguage, Consumer<TranslationResult> resultConsumer)
+    public String translate(String sourceText, String sourceLang, String targetLang)
     {
         // The ApiTranscriptionService already returns the translated text.
         // This service just passes it through.
-        resultConsumer.accept(new TranslationResult(
-            transcriptionResult.getParticipant(),
-            targetLanguage,
-            transcriptionResult.getAlternatives().get(0).getTranscription()
-        ));
-        return null;
+        return sourceText;
     }
 
-    @Override
-    public String getServiceDisplayName() {
+    /**
+     * A name for this translation service
+     *
+     * @return A String which is a human-readable name for this service
+     */
+    public String getServiceDisplayName()
+    {
         return "API Translation Service";
     }
 }
